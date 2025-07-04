@@ -240,7 +240,8 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
               repo: 'entrix-task',
               oauthToken: cdk.SecretValue.secretsManager(`entrix-github-token-${environment}`),
               output: sourceOutput,
-              branch: 'main'
+              branch: 'main',
+              trigger: codepipelineActions.GitHubTrigger.POLL  // Use polling instead of webhooks
             })
           ]
         },
