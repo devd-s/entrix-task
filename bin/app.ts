@@ -18,6 +18,7 @@ new EntrixEnergyAuctionStack(app, `EntrixEnergyAuctionStack-${environment}`, {
 
 // CI/CD Pipeline Stack (OPTIONAL - Deploy separately)
 // Uncomment and deploy this after the core infrastructure is working
+/*
 new PipelineStack(app, `PipelineStack-${environment}`, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
@@ -25,6 +26,7 @@ new PipelineStack(app, `PipelineStack-${environment}`, {
   },
   environment: environment
 });
+*/
 
 // MULTIPLE ENVIRONMENTS FEATURE (COMMENTED)
 // Uncomment below to deploy multiple environments at once
