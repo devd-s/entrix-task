@@ -76,6 +76,7 @@ jobs:
       run: npm run deploy -- --require-approval never
       env:
         ENVIRONMENT: dev
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Notify deployment success
       if: success()
