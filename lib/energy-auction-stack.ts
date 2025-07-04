@@ -183,7 +183,7 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
     });
 
     // GitHub Token Secret for CodePipeline
-    const githubToken = process.env.GITHUB_TOKEN;
+    const githubToken = process.env.PERSONAL_ACCESS_TOKEN;
     const githubTokenSecret = new secretsmanager.Secret(this, 'GitHubTokenSecret', {
       secretName: 'entrix-github-token',
       description: 'GitHub PAT for CodePipeline ',
