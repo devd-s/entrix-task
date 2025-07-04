@@ -108,7 +108,7 @@ export class PipelineStack extends cdk.Stack {
       description: 'AWS CodePipeline name'
     });
 
-    new cdk.CfnOutput(this, 'GitHubTokenSecret', {
+    new cdk.CfnOutput(this, 'GitHubTokenSecretName', {
       value: githubTokenSecret.secretName,
       description: 'GitHub token secret name in Secrets Manager'
     });
