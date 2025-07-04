@@ -7,7 +7,7 @@ const app = new cdk.App();
 const environment = process.env.ENVIRONMENT || 'dev';
 
 // Current single environment deployment
-new EntrixEnergyAuctionStack(app, `EntrixEnergyAuctionStack-${environment}-v2`, {
+new EntrixEnergyAuctionStack(app, `EntrixEnergyAuctionStack-${environment}`, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: 'eu-west-1'
