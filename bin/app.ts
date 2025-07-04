@@ -1,13 +1,24 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
 import { EntrixEnergyAuctionStack } from '../lib/energy-auction-stack';
+import { PipelineStack } from '../lib/pipeline-stack';
 
 const app = new cdk.App();
 
 const environment = process.env.ENVIRONMENT || 'dev';
 
-// Current single environment deployment
+// Core Infrastructure Stack
 new EntrixEnergyAuctionStack(app, `EntrixEnergyAuctionStack-${environment}`, {
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: 'eu-west-1'
+  },
+  environment: environment
+});
+
+// CI/CD Pipeline Stack (OPTIONAL - Deploy separately)
+// Uncomment and deploy this after the core infrastructure is working
+new PipelineStack(app, `PipelineStack-${environment}`, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: 'eu-west-1'
