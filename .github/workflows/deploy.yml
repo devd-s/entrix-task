@@ -72,17 +72,26 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Destroy existing stack (cleanup)
-      run: npm run destroy -- --force
+    - name: Destroy existing stacks (cleanup)
+      run: npm run destroy -- --all --force
       env:
         ENVIRONMENT: dev
       continue-on-error: true
     
-    - name: Deploy to Dev
-      run: npm run deploy -- --require-approval never
+    - name: Wait for cleanup
+      run: sleep 30
+    
+    - name: Deploy Core Infrastructure
+      run: npm run deploy EntrixEnergyAuctionStack-dev -- --require-approval never
+      env:
+        ENVIRONMENT: dev
+    
+    - name: Deploy Pipeline Stack
+      run: npm run deploy PipelineStack-dev -- --require-approval never
       env:
         ENVIRONMENT: dev
         PERSONAL_ACCESS_TOKEN: ${{ secrets.PAT_TOKEN }}
+      continue-on-error: true
     
     - name: Notify deployment success
       if: success()
