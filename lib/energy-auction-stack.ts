@@ -235,7 +235,7 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
     }));
 
     const pipeline = new codepipeline.Pipeline(this, 'Pipeline', {
-      pipelineName: `energy-auction-pipeline-${environment}`,
+      pipelineName: `entrix-energy-auction-pipeline-${environment}`,
       stages: [
         {
           stageName: 'Source',
@@ -246,7 +246,7 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
               repo: 'entrix-task',
               oauthToken: cdk.SecretValue.secretsManager('entrix-github-token'),
               output: sourceOutput,
-              branch: 'master'
+              branch: 'main'
             })
           ]
         },
