@@ -16,13 +16,8 @@ export class PipelineStack extends cdk.Stack {
 
     const { environment } = props;
 
-    // GitHub Token Secret for CodePipeline
-    const githubToken = process.env.PERSONAL_ACCESS_TOKEN;
-    const githubTokenSecret = new secretsmanager.Secret(this, 'GitHubTokenSecret', {
-      secretName: `entrix-github-token-${environment}`,
-      description: 'GitHub PAT for CodePipeline',
-      secretStringValue: githubToken ? cdk.SecretValue.unsafePlainText(githubToken) : undefined
-    });
+    // GitHub Token Secret (managed externally via GitHub Actions)
+    const githubTokenSecretName = `entrix-github-token-${environment}`;
 
     // CodeBuild Project with unique identifier to avoid conflicts
     const uniqueId = Date.now().toString().slice(-8); // Last 8 digits of timestamp
@@ -81,7 +76,7 @@ export class PipelineStack extends cdk.Stack {
               actionName: 'GitHub_Source',
               owner: 'devd', 
               repo: 'entrix-task',
-              oauthToken: cdk.SecretValue.secretsManager(`entrix-github-token-${environment}`),
+              oauthToken: cdk.SecretValue.secretsManager(githubTokenSecretName),
               output: sourceOutput,
               branch: 'main',
               trigger: codepipelineActions.GitHubTrigger.WEBHOOK  // Auto-trigger on push to main
@@ -109,7 +104,7 @@ export class PipelineStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, 'GitHubTokenSecretName', {
-      value: githubTokenSecret.secretName,
+      value: githubTokenSecretName,
       description: 'GitHub token secret name in Secrets Manager'
     });
 
