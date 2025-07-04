@@ -72,7 +72,7 @@ jobs:
     
     - name: Destroy existing stack (cleanup)
       run: |
-        npm run destroy -- --force
+        # npm run destroy -- --force
         PIPELINE_NAME="entrix-energy-auction-pipeline-${ENVIRONMENT}"
         aws codepipeline delete-pipeline --name $PIPELINE_NAME || echo "Pipeline not found"
       env:
