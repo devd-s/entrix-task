@@ -43,8 +43,10 @@ jobs:
     - name: CDK synth
       run: npm run synth
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-region: ${{ env.AWS_REGION }}
 
   deploy-dev:
     needs: test
@@ -64,20 +66,17 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+        aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}  
         aws-region: ${{ env.AWS_REGION }}
     
     - name: Install dependencies
       run: npm ci
-    
+
     - name: Destroy existing stack (cleanup)
       run: npm run destroy -- --force
       env:
         ENVIRONMENT: dev
       continue-on-error: true
-    
-    - name: Wait for cleanup
-      run: sleep 60
     
     - name: Deploy to Dev
       run: npm run deploy -- --require-approval never
