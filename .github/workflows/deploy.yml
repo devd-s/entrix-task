@@ -2,9 +2,9 @@ name: Deploy to AWS Dev
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 env:
   AWS_REGION: eu-west-1
