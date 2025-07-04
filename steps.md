@@ -1,3 +1,4 @@
+
 # Energy Auction Challenge - Implementation Steps
 
 ## Overview
