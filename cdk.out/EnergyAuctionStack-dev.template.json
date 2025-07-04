@@ -1,0 +1,1603 @@
+{
+ "Resources": {
+  "OrderResultsBucket35E2B63A": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "BucketName": {
+     "Fn::Join": [
+      "",
+      [
+       "order-results-dev-",
+       {
+        "Ref": "AWS::AccountId"
+       }
+      ]
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     }
+    ],
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/OrderResultsBucket/Resource"
+   }
+  },
+  "OrderResultsBucketPolicyF63FD395": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "OrderResultsBucket35E2B63A"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:PutBucketPolicy"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OrderResultsBucket35E2B63A",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "OrderResultsBucket35E2B63A",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/OrderResultsBucket/Policy/Resource"
+   }
+  },
+  "OrderResultsBucketAutoDeleteObjectsCustomResource96AB698A": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "OrderResultsBucket35E2B63A"
+    }
+   },
+   "DependsOn": [
+    "OrderResultsBucketPolicyF63FD395"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/OrderResultsBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-844682013548-eu-west-1",
+     "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "OrderResultsBucket35E2B63A"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:property": "Code"
+   }
+  },
+  "OrdersTable315BB997": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "record_id",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "record_id",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "orders-dev",
+    "TimeToLiveSpecification": {
+     "AttributeName": "ttl",
+     "Enabled": true
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/OrdersTable/Resource"
+   }
+  },
+  "ErrorNotificationTopic0DACB6F3": {
+   "Type": "AWS::SNS::Topic",
+   "Properties": {
+    "DisplayName": "Error Notifications for Energy Auction",
+    "TopicName": "error-notifications-dev"
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/ErrorNotificationTopic/Resource"
+   }
+  },
+  "PostLambdaServiceRole1CD56985": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/PostLambda/ServiceRole/Resource"
+   }
+  },
+  "PostLambdaServiceRoleDefaultPolicy1E8FF5CA": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OrdersTable315BB997",
+          "Arn"
+         ]
+        },
+        {
+         "Ref": "AWS::NoValue"
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "PostLambdaServiceRoleDefaultPolicy1E8FF5CA",
+    "Roles": [
+     {
+      "Ref": "PostLambdaServiceRole1CD56985"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/PostLambda/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "PostLambda0EF1C7F9": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-844682013548-eu-west-1",
+     "S3Key": "80fa0d4324672b78795ef93afd3e285b10fc25af2b1fce33f72b00891ea0f29d.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "TABLE_NAME": {
+       "Ref": "OrdersTable315BB997"
+      }
+     }
+    },
+    "Handler": "app.lambda_handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "PostLambdaServiceRole1CD56985",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.9",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "PostLambdaServiceRoleDefaultPolicy1E8FF5CA",
+    "PostLambdaServiceRole1CD56985"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/PostLambda/Resource",
+    "aws:asset:path": "asset.80fa0d4324672b78795ef93afd3e285b10fc25af2b1fce33f72b00891ea0f29d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "LambdaAServiceRole22081E46": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/LambdaA/ServiceRole/Resource"
+   }
+  },
+  "LambdaAE814F098": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-844682013548-eu-west-1",
+     "S3Key": "3f7f6036e4da3bebf9ad731eda4ef80c26f7103aba18080076b49f568181686d.zip"
+    },
+    "Handler": "app.lambda_handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "LambdaAServiceRole22081E46",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.9",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "LambdaAServiceRole22081E46"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/LambdaA/Resource",
+    "aws:asset:path": "asset.3f7f6036e4da3bebf9ad731eda4ef80c26f7103aba18080076b49f568181686d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "LambdaBServiceRole054CD0BC": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/LambdaB/ServiceRole/Resource"
+   }
+  },
+  "LambdaBServiceRoleDefaultPolicy42ED4EA2": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "OrderResultsBucket35E2B63A",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "OrderResultsBucket35E2B63A",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LambdaBServiceRoleDefaultPolicy42ED4EA2",
+    "Roles": [
+     {
+      "Ref": "LambdaBServiceRole054CD0BC"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/LambdaB/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "LambdaB855AF8F0": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-844682013548-eu-west-1",
+     "S3Key": "e6b814300ad4eb4ac53602a09d16be812454b8d8ace5654bda4d6a6bd271cf4a.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "LOG_BUCKET": {
+       "Ref": "OrderResultsBucket35E2B63A"
+      }
+     }
+    },
+    "Handler": "app.lambda_handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "LambdaBServiceRole054CD0BC",
+      "Arn"
+     ]
+    },
+    "Runtime": "python3.9",
+    "Timeout": 30
+   },
+   "DependsOn": [
+    "LambdaBServiceRoleDefaultPolicy42ED4EA2",
+    "LambdaBServiceRole054CD0BC"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/LambdaB/Resource",
+    "aws:asset:path": "asset.e6b814300ad4eb4ac53602a09d16be812454b8d8ace5654bda4d6a6bd271cf4a",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "EnergyAuctionApi74C6D117": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Description": "API for energy auction orders",
+    "Name": "energy-auction-api-dev"
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/EnergyAuctionApi/Resource"
+   }
+  },
+  "EnergyAuctionApiDeploymentF954A87F684b5eea0aa06d40088484d98ffd43d2": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "Description": "API for energy auction orders",
+    "RestApiId": {
+     "Ref": "EnergyAuctionApi74C6D117"
+    }
+   },
+   "DependsOn": [
+    "EnergyAuctionApiordersPOST7ED75AC6",
+    "EnergyAuctionApiorders6FDFD0A8"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/EnergyAuctionApi/Deployment/Resource",
+    "aws:cdk:do-not-refactor": true
+   }
+  },
+  "EnergyAuctionApiDeploymentStagedevF5C882AC": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "DeploymentId": {
+     "Ref": "EnergyAuctionApiDeploymentF954A87F684b5eea0aa06d40088484d98ffd43d2"
+    },
+    "RestApiId": {
+     "Ref": "EnergyAuctionApi74C6D117"
+    },
+    "StageName": "dev"
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/EnergyAuctionApi/DeploymentStage.dev/Resource"
+   }
+  },
+  "EnergyAuctionApiorders6FDFD0A8": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "EnergyAuctionApi74C6D117",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "orders",
+    "RestApiId": {
+     "Ref": "EnergyAuctionApi74C6D117"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/EnergyAuctionApi/Default/orders/Resource"
+   }
+  },
+  "EnergyAuctionApiordersPOSTApiPermissionEnergyAuctionStackdevEnergyAuctionApi5AB3508APOSTordersA6B61594": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "PostLambda0EF1C7F9",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:eu-west-1:844682013548:",
+       {
+        "Ref": "EnergyAuctionApi74C6D117"
+       },
+       "/",
+       {
+        "Ref": "EnergyAuctionApiDeploymentStagedevF5C882AC"
+       },
+       "/POST/orders"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/EnergyAuctionApi/Default/orders/POST/ApiPermission.EnergyAuctionStackdevEnergyAuctionApi5AB3508A.POST..orders"
+   }
+  },
+  "EnergyAuctionApiordersPOSTApiPermissionTestEnergyAuctionStackdevEnergyAuctionApi5AB3508APOSTorders3D5B9494": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "PostLambda0EF1C7F9",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:eu-west-1:844682013548:",
+       {
+        "Ref": "EnergyAuctionApi74C6D117"
+       },
+       "/test-invoke-stage/POST/orders"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/EnergyAuctionApi/Default/orders/POST/ApiPermission.Test.EnergyAuctionStackdevEnergyAuctionApi5AB3508A.POST..orders"
+   }
+  },
+  "EnergyAuctionApiordersPOST7ED75AC6": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "AuthorizationType": "NONE",
+    "HttpMethod": "POST",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:aws:apigateway:eu-west-1:lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "PostLambda0EF1C7F9",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    },
+    "ResourceId": {
+     "Ref": "EnergyAuctionApiorders6FDFD0A8"
+    },
+    "RestApiId": {
+     "Ref": "EnergyAuctionApi74C6D117"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/EnergyAuctionApi/Default/orders/POST/Resource"
+   }
+  },
+  "DataPipelineStateMachineRoleCEB53571": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "states.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/DataPipelineStateMachine/Role/Resource"
+   }
+  },
+  "DataPipelineStateMachineRoleDefaultPolicy698F22D8": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "LambdaAE814F098",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::GetAtt": [
+          "LambdaB855AF8F0",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "LambdaAE814F098",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "LambdaB855AF8F0",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "sns:Publish",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "ErrorNotificationTopic0DACB6F3"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DataPipelineStateMachineRoleDefaultPolicy698F22D8",
+    "Roles": [
+     {
+      "Ref": "DataPipelineStateMachineRoleCEB53571"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/DataPipelineStateMachine/Role/DefaultPolicy/Resource"
+   }
+  },
+  "DataPipelineStateMachineA0BAC8C1": {
+   "Type": "AWS::StepFunctions::StateMachine",
+   "Properties": {
+    "DefinitionString": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"StartAt\":\"InvokeLambdaA\",\"States\":{\"InvokeLambdaA\":{\"Next\":\"CheckResults\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"OutputPath\":\"$.Payload\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "LambdaAE814F098",
+         "Arn"
+        ]
+       },
+       "\",\"Payload.$\":\"$\"}},\"CheckResults\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.results\",\"BooleanEquals\":false,\"Next\":\"InvokeLambdaA\"}],\"Default\":\"ProcessOrders\"},\"ProcessOrders\":{\"Type\":\"Map\",\"Next\":\"ProcessingComplete\",\"ItemsPath\":\"$.orders\",\"MaxConcurrency\":10,\"Iterator\":{\"StartAt\":\"InvokeLambdaB\",\"States\":{\"InvokeLambdaB\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Catch\":[{\"ErrorEquals\":[\"States.TaskFailed\"],\"ResultPath\":\"$.error\",\"Next\":\"SendErrorNotification\"}],\"Type\":\"Task\",\"InputPath\":\"$\",\"ResultPath\":\"$.result\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "LambdaB855AF8F0",
+         "Arn"
+        ]
+       },
+       "\",\"Payload.$\":\"$\"}},\"SendErrorNotification\":{\"End\":true,\"Type\":\"Task\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::sns:publish\",\"Parameters\":{\"TopicArn\":\"",
+       {
+        "Ref": "ErrorNotificationTopic0DACB6F3"
+       },
+       "\",\"Message\":{\"error\":\"Lambda B failed to process order\",\"input.$\":\"$\",\"time.$\":\"$$.State.EnteredTime\"}}}}}},\"ProcessingComplete\":{\"Type\":\"Succeed\"}},\"TimeoutSeconds\":900}"
+      ]
+     ]
+    },
+    "RoleArn": {
+     "Fn::GetAtt": [
+      "DataPipelineStateMachineRoleCEB53571",
+      "Arn"
+     ]
+    },
+    "StateMachineName": "data-pipeline-dev"
+   },
+   "DependsOn": [
+    "DataPipelineStateMachineRoleDefaultPolicy698F22D8",
+    "DataPipelineStateMachineRoleCEB53571"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/DataPipelineStateMachine/Resource"
+   }
+  },
+  "DataPipelineStateMachineEventsRoleC7573D65": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "events.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/DataPipelineStateMachine/EventsRole/Resource"
+   }
+  },
+  "DataPipelineStateMachineEventsRoleDefaultPolicy1D74FEDB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "states:StartExecution",
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DataPipelineStateMachineA0BAC8C1"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DataPipelineStateMachineEventsRoleDefaultPolicy1D74FEDB",
+    "Roles": [
+     {
+      "Ref": "DataPipelineStateMachineEventsRoleC7573D65"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/DataPipelineStateMachine/EventsRole/DefaultPolicy/Resource"
+   }
+  },
+  "DataPipelineSchedule2368DDC2": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Name": "data-pipeline-schedule-dev",
+    "ScheduleExpression": "rate(1 hour)",
+    "State": "ENABLED",
+    "Targets": [
+     {
+      "Arn": {
+       "Ref": "DataPipelineStateMachineA0BAC8C1"
+      },
+      "Id": "Target0",
+      "RoleArn": {
+       "Fn::GetAtt": [
+        "DataPipelineStateMachineEventsRoleC7573D65",
+        "Arn"
+       ]
+      }
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/DataPipelineSchedule/Resource"
+   }
+  },
+  "BuildProjectRoleAA92C755": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codebuild.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/BuildProject/Role/Resource"
+   }
+  },
+  "BuildProjectRoleDefaultPolicy3E9F248C": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:aws:logs:eu-west-1:844682013548:log-group:/aws/codebuild/",
+           {
+            "Ref": "BuildProject097C5DB7"
+           },
+           ":*"
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           "arn:aws:logs:eu-west-1:844682013548:log-group:/aws/codebuild/",
+           {
+            "Ref": "BuildProject097C5DB7"
+           }
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "codebuild:BatchPutCodeCoverages",
+        "codebuild:BatchPutTestCases",
+        "codebuild:CreateReport",
+        "codebuild:CreateReportGroup",
+        "codebuild:UpdateReport"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:codebuild:eu-west-1:844682013548:report-group/",
+          {
+           "Ref": "BuildProject097C5DB7"
+          },
+          "-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "*",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PipelineArtifactsBucket22248F97",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "PipelineArtifactsBucket22248F97",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:GenerateDataKey*",
+        "kms:ReEncrypt*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "PipelineArtifactsBucketEncryptionKey01D58D69",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "BuildProjectRoleDefaultPolicy3E9F248C",
+    "Roles": [
+     {
+      "Ref": "BuildProjectRoleAA92C755"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/BuildProject/Role/DefaultPolicy/Resource"
+   }
+  },
+  "BuildProject097C5DB7": {
+   "Type": "AWS::CodeBuild::Project",
+   "Properties": {
+    "Artifacts": {
+     "Type": "CODEPIPELINE"
+    },
+    "Cache": {
+     "Type": "NO_CACHE"
+    },
+    "EncryptionKey": {
+     "Fn::GetAtt": [
+      "PipelineArtifactsBucketEncryptionKey01D58D69",
+      "Arn"
+     ]
+    },
+    "Environment": {
+     "ComputeType": "BUILD_GENERAL1_SMALL",
+     "Image": "aws/codebuild/standard:5.0",
+     "ImagePullCredentialsType": "CODEBUILD",
+     "PrivilegedMode": false,
+     "Type": "LINUX_CONTAINER"
+    },
+    "Name": "energy-auction-build-dev",
+    "ServiceRole": {
+     "Fn::GetAtt": [
+      "BuildProjectRoleAA92C755",
+      "Arn"
+     ]
+    },
+    "Source": {
+     "BuildSpec": "{\n  \"version\": \"0.2\",\n  \"phases\": {\n    \"install\": {\n      \"runtime-versions\": {\n        \"nodejs\": \"18\"\n      },\n      \"commands\": [\n        \"npm install -g aws-cdk\",\n        \"npm ci\"\n      ]\n    },\n    \"pre_build\": {\n      \"commands\": [\n        \"npm run test\",\n        \"cdk synth\"\n      ]\n    },\n    \"build\": {\n      \"commands\": [\n        \"cdk deploy --require-approval never\"\n      ]\n    }\n  }\n}",
+     "Type": "CODEPIPELINE"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/BuildProject/Resource"
+   }
+  },
+  "PipelineArtifactsBucketEncryptionKey01D58D69": {
+   "Type": "AWS::KMS::Key",
+   "Properties": {
+    "KeyPolicy": {
+     "Statement": [
+      {
+       "Action": "kms:*",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": "arn:aws:iam::844682013548:root"
+       },
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Pipeline/ArtifactsBucketEncryptionKey/Resource"
+   }
+  },
+  "PipelineArtifactsBucketEncryptionKeyAlias5C510EEE": {
+   "Type": "AWS::KMS::Alias",
+   "Properties": {
+    "AliasName": "alias/codepipeline-energyauctionstack-dev-pipeline-6c53b30a",
+    "TargetKeyId": {
+     "Fn::GetAtt": [
+      "PipelineArtifactsBucketEncryptionKey01D58D69",
+      "Arn"
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Pipeline/ArtifactsBucketEncryptionKeyAlias/Resource"
+   }
+  },
+  "PipelineArtifactsBucket22248F97": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "KMSMasterKeyID": {
+         "Fn::GetAtt": [
+          "PipelineArtifactsBucketEncryptionKey01D58D69",
+          "Arn"
+         ]
+        },
+        "SSEAlgorithm": "aws:kms"
+       }
+      }
+     ]
+    },
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    }
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Pipeline/ArtifactsBucket/Resource"
+   }
+  },
+  "PipelineArtifactsBucketPolicyD4F9712A": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "PipelineArtifactsBucket22248F97"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "s3:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PipelineArtifactsBucket22248F97",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "PipelineArtifactsBucket22248F97",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Pipeline/ArtifactsBucket/Policy/Resource"
+   }
+  },
+  "PipelineRoleD68726F7": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "codepipeline.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Pipeline/Role/Resource"
+   }
+  },
+  "PipelineRoleDefaultPolicyC7A05455": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:Abort*",
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PipelineArtifactsBucket22248F97",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "PipelineArtifactsBucket22248F97",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:Encrypt",
+        "kms:GenerateDataKey*",
+        "kms:ReEncrypt*"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "PipelineArtifactsBucketEncryptionKey01D58D69",
+         "Arn"
+        ]
+       }
+      },
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "PipelineBuildCodeBuildCodePipelineActionRoleEE1A2CE7",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "PipelineRoleDefaultPolicyC7A05455",
+    "Roles": [
+     {
+      "Ref": "PipelineRoleD68726F7"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Pipeline/Role/DefaultPolicy/Resource"
+   }
+  },
+  "PipelineC660917D": {
+   "Type": "AWS::CodePipeline::Pipeline",
+   "Properties": {
+    "ArtifactStore": {
+     "EncryptionKey": {
+      "Id": {
+       "Fn::GetAtt": [
+        "PipelineArtifactsBucketEncryptionKey01D58D69",
+        "Arn"
+       ]
+      },
+      "Type": "KMS"
+     },
+     "Location": {
+      "Ref": "PipelineArtifactsBucket22248F97"
+     },
+     "Type": "S3"
+    },
+    "Name": "energy-auction-pipeline-dev",
+    "RoleArn": {
+     "Fn::GetAtt": [
+      "PipelineRoleD68726F7",
+      "Arn"
+     ]
+    },
+    "Stages": [
+     {
+      "Actions": [
+       {
+        "ActionTypeId": {
+         "Category": "Source",
+         "Owner": "ThirdParty",
+         "Provider": "GitHub",
+         "Version": "1"
+        },
+        "Configuration": {
+         "Owner": "YOUR_GITHUB_USERNAME",
+         "Repo": "cloud-engineer-challenge",
+         "Branch": "master",
+         "OAuthToken": "{{resolve:secretsmanager:github-token:SecretString:::}}",
+         "PollForSourceChanges": false
+        },
+        "Name": "GitHub_Source",
+        "OutputArtifacts": [
+         {
+          "Name": "Artifact_Source_GitHub_Source"
+         }
+        ],
+        "RunOrder": 1
+       }
+      ],
+      "Name": "Source"
+     },
+     {
+      "Actions": [
+       {
+        "ActionTypeId": {
+         "Category": "Build",
+         "Owner": "AWS",
+         "Provider": "CodeBuild",
+         "Version": "1"
+        },
+        "Configuration": {
+         "ProjectName": {
+          "Ref": "BuildProject097C5DB7"
+         }
+        },
+        "InputArtifacts": [
+         {
+          "Name": "Artifact_Source_GitHub_Source"
+         }
+        ],
+        "Name": "CodeBuild",
+        "OutputArtifacts": [
+         {
+          "Name": "Artifact_Build_CodeBuild"
+         }
+        ],
+        "RoleArn": {
+         "Fn::GetAtt": [
+          "PipelineBuildCodeBuildCodePipelineActionRoleEE1A2CE7",
+          "Arn"
+         ]
+        },
+        "RunOrder": 1
+       }
+      ],
+      "Name": "Build"
+     }
+    ]
+   },
+   "DependsOn": [
+    "PipelineRoleDefaultPolicyC7A05455",
+    "PipelineRoleD68726F7"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Pipeline/Resource"
+   }
+  },
+  "PipelineSourceGitHubSourceWebhookResource8EECEFFF": {
+   "Type": "AWS::CodePipeline::Webhook",
+   "Properties": {
+    "Authentication": "GITHUB_HMAC",
+    "AuthenticationConfiguration": {
+     "SecretToken": "{{resolve:secretsmanager:github-token:SecretString:::}}"
+    },
+    "Filters": [
+     {
+      "JsonPath": "$.ref",
+      "MatchEquals": "refs/heads/{Branch}"
+     }
+    ],
+    "RegisterWithThirdParty": true,
+    "TargetAction": "GitHub_Source",
+    "TargetPipeline": {
+     "Ref": "PipelineC660917D"
+    },
+    "TargetPipelineVersion": 1
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Pipeline/Source/GitHub_Source/WebhookResource"
+   }
+  },
+  "PipelineBuildCodeBuildCodePipelineActionRoleEE1A2CE7": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "PipelineRoleD68726F7",
+          "Arn"
+         ]
+        }
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Pipeline/Build/CodeBuild/CodePipelineActionRole/Resource"
+   }
+  },
+  "PipelineBuildCodeBuildCodePipelineActionRoleDefaultPolicyD9C4A2F6": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "codebuild:BatchGetBuilds",
+        "codebuild:StartBuild",
+        "codebuild:StopBuild"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "BuildProject097C5DB7",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "PipelineBuildCodeBuildCodePipelineActionRoleDefaultPolicyD9C4A2F6",
+    "Roles": [
+     {
+      "Ref": "PipelineBuildCodeBuildCodePipelineActionRoleEE1A2CE7"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/Pipeline/Build/CodeBuild/CodePipelineActionRole/DefaultPolicy/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21R0Y7bIBD8lnsn9Jr0B3KpKlXtqVZSqY8Rhr14YwzICzlFlv+9C7iXXHVPO7MMy+ywluvHjfz8oF5ppU2/stjK6RCV7gW3jhNt5PSUdA9R7F7cgmppvEV9vbUXXsmTIpiFuTo1eMMjf6vWQtYWMAtyxE0fUJdmBrOwamiNktO35HRE7/LRPW5gHJCI2SxQDXLa+zq01JufiviRzVERQSS5zUWogCcV4VVd+SpQ3AYstxf4FYL11wFc2fWOcR6n8k4FrPdp1JB3fCPLoIqfIXbe5FZFbCVCeFlWoWNU1PP+P8u+393F9yAOjprUWqTuP7Wcdp3HPFUFcUhaA5hsKcKz0h26f87e+Czgwrb54j4t+aScufYG2oTWyKnBAJalzejPoMu+C6yysJzflEVyh/9A23nfz6If+KEfUILPZWtRUSYFzLPYJYp++DCn90fs4IIGxpJr+bGcN7rTu5B/pRgS23RsU57p02X9RW7k48OZEFdjchEHkPta/wIZYfbl3gIAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "EnergyAuctionStack-dev/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "EnergyAuctionApiEndpoint7E209AD4": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "EnergyAuctionApi74C6D117"
+      },
+      ".execute-api.eu-west-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "EnergyAuctionApiDeploymentStagedevF5C882AC"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "ApiEndpoint": {
+   "Description": "API Gateway endpoint URL",
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "EnergyAuctionApi74C6D117"
+      },
+      ".execute-api.eu-west-1.",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "EnergyAuctionApiDeploymentStagedevF5C882AC"
+      },
+      "/"
+     ]
+    ]
+   }
+  },
+  "OrderResultsBucketName": {
+   "Description": "S3 bucket name for order results",
+   "Value": {
+    "Ref": "OrderResultsBucket35E2B63A"
+   }
+  },
+  "OrdersTableName": {
+   "Description": "DynamoDB table name for orders",
+   "Value": {
+    "Ref": "OrdersTable315BB997"
+   }
+  },
+  "StateMachineArn": {
+   "Description": "Step Functions state machine ARN",
+   "Value": {
+    "Ref": "DataPipelineStateMachineA0BAC8C1"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

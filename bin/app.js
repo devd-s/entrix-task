@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const cdk = require("aws-cdk-lib");
+const energy_auction_stack_1 = require("../lib/energy-auction-stack");
+const app = new cdk.App();
+const environment = process.env.ENVIRONMENT || 'dev';
+new energy_auction_stack_1.EnergyAuctionStack(app, `EnergyAuctionStack-${environment}`, {
+    env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: 'eu-west-1'
+    },
+    environment: environment
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYXBwLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiYXBwLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUNBLG1DQUFtQztBQUNuQyxzRUFBaUU7QUFFakUsTUFBTSxHQUFHLEdBQUcsSUFBSSxHQUFHLENBQUMsR0FBRyxFQUFFLENBQUM7QUFFMUIsTUFBTSxXQUFXLEdBQUcsT0FBTyxDQUFDLEdBQUcsQ0FBQyxXQUFXLElBQUksS0FBSyxDQUFDO0FBRXJELElBQUkseUNBQWtCLENBQUMsR0FBRyxFQUFFLHNCQUFzQixXQUFXLEVBQUUsRUFBRTtJQUMvRCxHQUFHLEVBQUU7UUFDSCxPQUFPLEVBQUUsT0FBTyxDQUFDLEdBQUcsQ0FBQyxtQkFBbUI7UUFDeEMsTUFBTSxFQUFFLFdBQVc7S0FDcEI7SUFDRCxXQUFXLEVBQUUsV0FBVztDQUN6QixDQUFDLENBQUMiLCJzb3VyY2VzQ29udGVudCI6WyIjIS91c3IvYmluL2VudiBub2RlXG5pbXBvcnQgKiBhcyBjZGsgZnJvbSAnYXdzLWNkay1saWInO1xuaW1wb3J0IHsgRW5lcmd5QXVjdGlvblN0YWNrIH0gZnJvbSAnLi4vbGliL2VuZXJneS1hdWN0aW9uLXN0YWNrJztcblxuY29uc3QgYXBwID0gbmV3IGNkay5BcHAoKTtcblxuY29uc3QgZW52aXJvbm1lbnQgPSBwcm9jZXNzLmVudi5FTlZJUk9OTUVOVCB8fCAnZGV2JztcblxubmV3IEVuZXJneUF1Y3Rpb25TdGFjayhhcHAsIGBFbmVyZ3lBdWN0aW9uU3RhY2stJHtlbnZpcm9ubWVudH1gLCB7XG4gIGVudjoge1xuICAgIGFjY291bnQ6IHByb2Nlc3MuZW52LkNES19ERUZBVUxUX0FDQ09VTlQsXG4gICAgcmVnaW9uOiAnZXUtd2VzdC0xJ1xuICB9LFxuICBlbnZpcm9ubWVudDogZW52aXJvbm1lbnRcbn0pOyJdfQ==
