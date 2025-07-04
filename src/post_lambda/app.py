@@ -1,23 +1,11 @@
 import logging
 import json
 import os
-from decimal import Decimal
 from typing import Any
 
 logger = logging.getLogger()
 
 TABLE_NAME = os.environ['TABLE_NAME']
-
-
-def convert_floats_to_decimal(obj):
-    """Convert float values to Decimal for DynamoDB compatibility."""
-    if isinstance(obj, float):
-        return Decimal(str(obj))
-    elif isinstance(obj, dict):
-        return {key: convert_floats_to_decimal(value) for key, value in obj.items()}
-    elif isinstance(obj, list):
-        return [convert_floats_to_decimal(item) for item in obj]
-    return obj
 
 
 def save_to_db(records: list[dict[str, Any]]):
@@ -39,8 +27,6 @@ def save_to_db(records: list[dict[str, Any]]):
     
     with table.batch_writer() as batch:
         for record in records:
-            # Convert floats to Decimal for DynamoDB compatibility
-            record = convert_floats_to_decimal(record)
             record['ttl'] = ttl
             batch.put_item(Item=record)
     

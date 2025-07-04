@@ -38,8 +38,6 @@ def save_to_s3(data: dict[str, Any], filename: str):
 
 def lambda_handler(event, context):
     """Process order result."""
-    # Handle both field names for compatibility
-    status = event.get("status") or event.get("order")
-    if status == "rejected":
+    if event["status"] == "rejected":
         raise ValueError("Order status is rejected!")
     save_to_s3(data=event, filename=f"orders/order_{dt.datetime.now(dt.timezone.utc).isoformat()}")
