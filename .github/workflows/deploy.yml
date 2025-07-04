@@ -74,9 +74,12 @@ jobs:
       run: |
         # npm run destroy -- --force
         PIPELINE_NAME="entrix-energy-auction-pipeline-${ENVIRONMENT}"
+        echo "Attempting to delete pipeline: $PIPELINE_NAME"
         aws codepipeline delete-pipeline --name $PIPELINE_NAME || echo "Pipeline not found"
         CODEBUILD_PROJECT="energy-auction-build-${ENVIRONMENT}"
-        aws codebuild delete-project --name $CODEBUILD_PROJECT || echo "CodeBuild project not
+        aws codebuild delete-project --name "$CODEBUILD_PROJECT"|| echo "CodeBuild project not found or already deleted"
+        echo "Verifying deletion of CodeBuild project..."
+        aws codebuild list-projects | grep "$CODEBUILD_PROJECT" || echo "✅ Project $CODEBUILD_PROJECT no longer exists"
       env:
         ENVIRONMENT: dev
       continue-on-error: true
