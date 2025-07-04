@@ -8,6 +8,11 @@ import * as stepfunctions from 'aws-cdk-lib/aws-stepfunctions';
 import * as sfnTasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as codepipeline from 'aws-cdk-lib/aws-codepipeline';
+import * as codepipelineActions from 'aws-cdk-lib/aws-codepipeline-actions';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
 export interface EntrixEnergyAuctionStackProps extends cdk.StackProps {
@@ -177,6 +182,88 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
       ]
     });
 
+    // GitHub Token Secret for CodePipeline
+    const githubToken = process.env.PERSONAL_ACCESS_TOKEN;
+    const githubTokenSecret = new secretsmanager.Secret(this, 'GitHubTokenSecret', {
+      secretName: 'entrix-github-token',
+      description: 'GitHub PAT for CodePipeline ',
+      secretStringValue: githubToken ? cdk.SecretValue.unsafePlainText(githubToken) : undefined
+    });
+
+    // CodePipeline for CI/CD
+    const sourceOutput = new codepipeline.Artifact();
+    const buildOutput = new codepipeline.Artifact();
+
+    const buildProject = new codebuild.PipelineProject(this, 'BuildProject', {
+      projectName: `energy-auction-build-${environment}`,
+      environment: {
+        buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
+        computeType: codebuild.ComputeType.SMALL
+      },
+      buildSpec: codebuild.BuildSpec.fromObject({
+        version: '0.2',
+        phases: {
+          install: {
+            'runtime-versions': {
+              nodejs: '18'
+            },
+            commands: [
+              'npm install -g aws-cdk',
+              'npm ci'
+            ]
+          },
+          pre_build: {
+            commands: [
+              'npm run test',
+              'cdk synth'
+            ]
+          },
+          build: {
+            commands: [
+              'cdk deploy --require-approval never'
+            ]
+          }
+        }
+      })
+    });
+
+    // Grant CodeBuild permissions to deploy CDK
+    buildProject.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['*'],
+      resources: ['*']
+    }));
+
+    const pipeline = new codepipeline.Pipeline(this, 'Pipeline', {
+      pipelineName: `entrix-energy-auction-pipeline-${environment}`,
+      stages: [
+        {
+          stageName: 'Source',
+          actions: [
+            new codepipelineActions.GitHubSourceAction({
+              actionName: 'GitHub_Source',
+              owner: 'devd', 
+              repo: 'entrix-task',
+              oauthToken: cdk.SecretValue.secretsManager('entrix-github-token'),
+              output: sourceOutput,
+              branch: 'main'
+            })
+          ]
+        },
+        {
+          stageName: 'Build',
+          actions: [
+            new codepipelineActions.CodeBuildAction({
+              actionName: 'CodeBuild',
+              project: buildProject,
+              input: sourceOutput,
+              outputs: [buildOutput]
+            })
+          ]
+        }
+      ]
+    });
+
     // Outputs
     new cdk.CfnOutput(this, 'ApiEndpoint', {
       value: api.url,
@@ -197,6 +284,5 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
       value: stateMachine.stateMachineArn,
       description: 'Step Functions state machine ARN'
     });
-
   }
 }
