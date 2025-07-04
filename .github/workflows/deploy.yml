@@ -71,6 +71,12 @@ jobs:
     
     - name: Install dependencies
       run: npm ci
+
+    - name: Destroy existing stack (cleanup)
+      run: npm run destroy -- --force
+      env:
+        ENVIRONMENT: dev
+      continue-on-error: true
     
     - name: Deploy to Dev
       run: npm run deploy -- --require-approval never
