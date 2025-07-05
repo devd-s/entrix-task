@@ -46,7 +46,6 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        CDK_GITHUB_CONNECTION_ARN: ${{ vars.AWS_CODE_CONNECTION_ARN }}
 
   deploy-dev:
     needs: test
@@ -79,8 +78,6 @@ jobs:
     
     - name: Deploy to Dev
       run: npm run deploy -- --require-approval never
-      env:
-        CDK_GITHUB_CONNECTION_ARN: ${{ vars.AWS_CODE_CONNECTION_ARN }}
     
     - name: Notify deployment success
       if: success()

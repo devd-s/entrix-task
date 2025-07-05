@@ -14,6 +14,7 @@ import * as codepipelineActions from 'aws-cdk-lib/aws-codepipeline-actions';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 
 export interface EntrixEnergyAuctionStackProps extends cdk.StackProps {
@@ -31,6 +32,13 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
     super(scope, id, props);
 
     const { environment, githubConnectionArn } = props;
+    
+    // Get GitHub Connection ARN from SSM Parameter Store or use provided value
+    const githubConnectionArnValue = githubConnectionArn || 
+      ssm.StringParameter.valueForStringParameter(
+        this, 
+        `/entrix/${environment}/github-connection-arn`
+      );
     
     // ENVIRONMENT-SPECIFIC CONFIGURATIONS (COMMENTED)
     // Uncomment to use environment-specific settings
@@ -393,6 +401,14 @@ def lambda_handler(event, context):
         buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
         computeType: codebuild.ComputeType.SMALL
       },
+      environmentVariables: {
+        CDK_GITHUB_CONNECTION_ARN: {
+          value: githubConnectionArnValue
+        },
+        ENVIRONMENT: {
+          value: environment
+        }
+      },
       buildSpec: codebuild.BuildSpec.fromObject({
         version: '0.2',
         phases: {
@@ -434,14 +450,14 @@ def lambda_handler(event, context):
           stageName: 'Source',
           actions: [
             // Use GitHub Connection if provided, otherwise use GitHub OAuth
-            githubConnectionArn ? 
+            githubConnectionArnValue ? 
               new codepipelineActions.CodeStarConnectionsSourceAction({
                 actionName: 'GitHub_Source',
                 owner: 'devd-s',
                 repo: 'entrix-task',
                 branch: 'master',
                 output: sourceOutput,
-                connectionArn: githubConnectionArn,
+                connectionArn: githubConnectionArnValue,
               }) :
               new codepipelineActions.GitHubSourceAction({
                 actionName: 'GitHub_Source',
@@ -501,7 +517,7 @@ def lambda_handler(event, context):
     });
 
     new cdk.CfnOutput(this, 'GitHubConnectionInfo', {
-      value: githubConnectionArn || 'No GitHub connection provided - using GitHub OAuth',
+      value: githubConnectionArnValue || 'No GitHub connection provided - using GitHub OAuth',
       description: 'GitHub connection status'
     });
 

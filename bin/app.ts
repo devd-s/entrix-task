@@ -15,9 +15,8 @@ new EntrixEnergyAuctionStack(app, `EntrixEnergyAuctionStack-${environment}`, {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: 'eu-west-1'
   },
-  environment: environment,
-  // GitHub connection ARN for CI/CD pipeline (from GitHub variable or fallback)
-  githubConnectionArn: process.env.CDK_GITHUB_CONNECTION_ARN || 'ARN of githubconnection not found'
+  environment: environment
+  // GitHub connection ARN will be retrieved from SSM Parameter Store: /entrix/{environment}/github-connection-arn
 });
 
 // Separate CI/CD Pipeline Stack (OPTIONAL - now included in main stack)
