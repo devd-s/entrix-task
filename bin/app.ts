@@ -16,8 +16,8 @@ new EntrixEnergyAuctionStack(app, `EntrixEnergyAuctionStack-${environment}`, {
     region: 'eu-west-1'
   },
   environment: environment,
-  // GitHub connection ARN for CI/CD pipeline
-  githubConnectionArn: 'arn:aws:codeconnections:eu-west-1:844682013548:connection/2bdacb93-aec6-4509-b83f-5cb0aa78c25a'
+  // GitHub connection ARN for CI/CD pipeline (from GitHub variable or fallback)
+  githubConnectionArn: process.env.CDK_GITHUB_CONNECTION_ARN || 'ARN of githubconnection not found'
 });
 
 // Separate CI/CD Pipeline Stack (OPTIONAL - now included in main stack)

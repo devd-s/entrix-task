@@ -46,6 +46,7 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        CDK_GITHUB_CONNECTION_ARN: ${{ vars.AWS_CODE_CONNECTION_ARN }}
 
   deploy-dev:
     needs: test
@@ -73,26 +74,13 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    # - name: Destroy existing stack (cleanup)
-    #   run: |
-    #     # npm run destroy -- --force
-    #     PIPELINE_NAME="entrix-energy-auction-pipeline-${ENVIRONMENT}"
-    #     echo "Attempting to delete pipeline: $PIPELINE_NAME"
-    #     aws codepipeline delete-pipeline --name $PIPELINE_NAME || echo "Pipeline not found"
-    #     CODEBUILD_PROJECT="energy-auction-build-${ENVIRONMENT}"
-    #     aws codebuild delete-project --name "$CODEBUILD_PROJECT"|| echo "CodeBuild project not found or already deleted"
-    #     echo "Verifying deletion of CodeBuild project..."
-    #     aws codebuild list-projects | grep "$CODEBUILD_PROJECT" || echo "✅ Project $CODEBUILD_PROJECT no longer exists"
-    #   continue-on-error: true
-    # 
-    # - name: Wait for cleanup
-    #   run: sleep 60
-    
     # GitHub PAT in Secrets Manager no longer needed - using GitHub Connections
     # The pipeline now uses CodeConnections for GitHub integration
     
     - name: Deploy to Dev
       run: npm run deploy -- --require-approval never
+      env:
+        CDK_GITHUB_CONNECTION_ARN: ${{ vars.AWS_CODE_CONNECTION_ARN }}
     
     - name: Notify deployment success
       if: success()
