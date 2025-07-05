@@ -10,6 +10,7 @@ env:
   AWS_REGION: eu-west-1
   NODE_VERSION: '18'
   PYTHON_VERSION: '3.9'
+  ENVIRONMENT: dev
 
 jobs:
   test:
@@ -50,6 +51,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    env:
+      ENVIRONMENT: dev
     steps:
     - uses: actions/checkout@v4
     
@@ -80,8 +83,6 @@ jobs:
         aws codebuild delete-project --name "$CODEBUILD_PROJECT"|| echo "CodeBuild project not found or already deleted"
         echo "Verifying deletion of CodeBuild project..."
         aws codebuild list-projects | grep "$CODEBUILD_PROJECT" || echo "✅ Project $CODEBUILD_PROJECT no longer exists"
-      env:
-        ENVIRONMENT: dev
       continue-on-error: true
     
     - name: Wait for cleanup
@@ -97,13 +98,9 @@ jobs:
           --secret-id entrix-github-token-${ENVIRONMENT} \
           --secret-string "${{ secrets.PAT_TOKEN }}" \
           --region ${{ env.AWS_REGION }}
-      env:
-        ENVIRONMENT: dev
     
     - name: Deploy to Dev
       run: npm run deploy -- --require-approval never
-      env:
-        ENVIRONMENT: dev
     
     - name: Notify deployment success
       if: success()
