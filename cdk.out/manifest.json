@@ -1,0 +1,445 @@
+{
+  "version": "45.0.0",
+  "artifacts": {
+    "EntrixEnergyAuctionStack-dev.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "EntrixEnergyAuctionStack-dev.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "EntrixEnergyAuctionStack-dev": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://844682013548/eu-west-1",
+      "properties": {
+        "templateFile": "EntrixEnergyAuctionStack-dev.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::844682013548:role/cdk-hnb659fds-deploy-role-844682013548-eu-west-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::844682013548:role/cdk-hnb659fds-cfn-exec-role-844682013548-eu-west-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-844682013548-eu-west-1/7df06e1d5b33291e46bcb0cad372ceb1cd8a64769033469ef7e312a894c46bd1.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "EntrixEnergyAuctionStack-dev.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::844682013548:role/cdk-hnb659fds-lookup-role-844682013548-eu-west-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "EntrixEnergyAuctionStack-dev.assets"
+      ],
+      "metadata": {
+        "/EntrixEnergyAuctionStack-dev/OrderResultsBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OrderResultsBucket35E2B63A"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/OrderResultsBucket/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OrderResultsBucketPolicyF63FD395"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/OrderResultsBucket/AutoDeleteObjectsCustomResource/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OrderResultsBucketAutoDeleteObjectsCustomResource96AB698A"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
+          {
+            "type": "aws:cdk:is-custom-resource-handler-customResourceProvider",
+            "data": true
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/OrdersTable": [
+          {
+            "type": "aws:cdk:hasPhysicalName",
+            "data": {
+              "Ref": "OrdersTable315BB997"
+            }
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/OrdersTable/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OrdersTable315BB997"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/ErrorNotificationTopic/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ErrorNotificationTopic0DACB6F3"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/ErrorNotificationTopic/devops-team@company.com/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ErrorNotificationTopicdevopsteamcompanycom0033BDEF"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EntrixPostLambda/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EntrixPostLambdaServiceRoleB775C877"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EntrixPostLambda/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EntrixPostLambdaServiceRoleDefaultPolicy6FF0B3FC"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EntrixPostLambda/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EntrixPostLambda9606C18F"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/LambdaA/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaAServiceRole22081E46"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/LambdaA/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaAE814F098"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/LambdaB/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaBServiceRole054CD0BC"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/LambdaB/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaBServiceRoleDefaultPolicy42ED4EA2"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/LambdaB/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LambdaB855AF8F0"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/SlackNotificationLambda/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SlackNotificationLambdaServiceRoleA0CCE128"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/SlackNotificationLambda/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SlackNotificationLambda2FCE26D7"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/SlackNotificationLambda/AllowInvoke:EntrixEnergyAuctionStackdevErrorNotificationTopic3DC73D50": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SlackNotificationLambdaAllowInvokeEntrixEnergyAuctionStackdevErrorNotificationTopic3DC73D50C614BB45"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/SlackNotificationLambda/ErrorNotificationTopic/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "SlackNotificationLambdaErrorNotificationTopic644B3132"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EnergyAuctionApi/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EnergyAuctionApi74C6D117"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EnergyAuctionApi/Deployment/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EnergyAuctionApiDeploymentF954A87F63ce5fa2ba1d99d2a02ce834db60b98b"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EnergyAuctionApi/DeploymentStage.dev/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EnergyAuctionApiDeploymentStagedevF5C882AC"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EnergyAuctionApi/Endpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EnergyAuctionApiEndpoint7E209AD4"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EnergyAuctionApi/Default/orders/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EnergyAuctionApiorders6FDFD0A8"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EnergyAuctionApi/Default/orders/POST/ApiPermission.EntrixEnergyAuctionStackdevEnergyAuctionApi1F85CCB5.POST..orders": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EnergyAuctionApiordersPOSTApiPermissionEntrixEnergyAuctionStackdevEnergyAuctionApi1F85CCB5POSTorders3803E7C0"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EnergyAuctionApi/Default/orders/POST/ApiPermission.Test.EntrixEnergyAuctionStackdevEnergyAuctionApi1F85CCB5.POST..orders": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EnergyAuctionApiordersPOSTApiPermissionTestEntrixEnergyAuctionStackdevEnergyAuctionApi1F85CCB5POSTordersCC84F867"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/EnergyAuctionApi/Default/orders/POST/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EnergyAuctionApiordersPOST7ED75AC6"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/DataPipelineStateMachine/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DataPipelineStateMachineRoleCEB53571"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/DataPipelineStateMachine/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DataPipelineStateMachineRoleDefaultPolicy698F22D8"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/DataPipelineStateMachine/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DataPipelineStateMachineA0BAC8C1"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/DataPipelineStateMachine/EventsRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DataPipelineStateMachineEventsRoleC7573D65"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/DataPipelineStateMachine/EventsRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DataPipelineStateMachineEventsRoleDefaultPolicy1D74FEDB"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/DataPipelineSchedule/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "DataPipelineSchedule2368DDC2"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/BuildProject/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BuildProjectRoleAA92C755"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/BuildProject/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BuildProjectRoleDefaultPolicy3E9F248C"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/BuildProject/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BuildProject097C5DB7"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline": [
+          {
+            "type": "aws:cdk:warning",
+            "data": "V1 pipeline type is implicitly selected when `pipelineType` is not set. If you want to use V2 type, set `PipelineType.V2`. [ack: @aws-cdk/aws-codepipeline:unspecifiedPipelineType]",
+            "trace": [
+              "Annotations.addMessage (/Users/devd/entrix-task/node_modules/aws-cdk-lib/core/lib/annotations.js:1:1709)",
+              "Annotations.addWarningV2 (/Users/devd/entrix-task/node_modules/aws-cdk-lib/core/lib/annotations.js:1:896)",
+              "new Pipeline2 (/Users/devd/entrix-task/node_modules/aws-cdk-lib/aws-codepipeline/lib/pipeline.js:1:8128)",
+              "new Pipeline2 (/Users/devd/entrix-task/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:488)",
+              "new EntrixEnergyAuctionStack (/Users/devd/entrix-task/lib/energy-auction-stack.ts:420:22)",
+              "Object.<anonymous> (/Users/devd/entrix-task/bin/app.ts:11:1)",
+              "Module._compile (node:internal/modules/cjs/loader:1692:14)",
+              "Module.m._compile (/Users/devd/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/index.ts:1618:23)",
+              "node:internal/modules/cjs/loader:1824:10",
+              "Object.require.extensions.<computed> [as .ts] (/Users/devd/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/index.ts:1621:12)",
+              "Module.load (node:internal/modules/cjs/loader:1427:32)",
+              "Module._load (node:internal/modules/cjs/loader:1250:12)",
+              "TracingChannel.traceSync (node:diagnostics_channel:322:14)",
+              "wrapModuleLoad (node:internal/modules/cjs/loader:235:24)",
+              "Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:152:5)",
+              "phase4 (/Users/devd/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:649:14)",
+              "bootstrap (/Users/devd/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:95:10)",
+              "main (/Users/devd/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:55:10)",
+              "Object.<anonymous> (/Users/devd/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:800:3)",
+              "Module._compile (node:internal/modules/cjs/loader:1692:14)",
+              "Object.<anonymous> (node:internal/modules/cjs/loader:1824:10)",
+              "Module.load (node:internal/modules/cjs/loader:1427:32)",
+              "Module._load (node:internal/modules/cjs/loader:1250:12)",
+              "TracingChannel.traceSync (node:diagnostics_channel:322:14)",
+              "wrapModuleLoad (node:internal/modules/cjs/loader:235:24)",
+              "Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:152:5)",
+              "node:internal/main/run_main_module:33:47"
+            ]
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/ArtifactsBucketEncryptionKey/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineArtifactsBucketEncryptionKey01D58D69"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/ArtifactsBucketEncryptionKeyAlias/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineArtifactsBucketEncryptionKeyAlias5C510EEE"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/ArtifactsBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineArtifactsBucket22248F97"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/ArtifactsBucket/Policy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineArtifactsBucketPolicyD4F9712A"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineRoleD68726F7"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineRoleDefaultPolicyC7A05455"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineC660917D"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/Source/GitHub_Source/CodePipelineActionRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineSourceGitHubSourceCodePipelineActionRole3B2287CE"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/Source/GitHub_Source/CodePipelineActionRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineSourceGitHubSourceCodePipelineActionRoleDefaultPolicyE64B1C38"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/Build/CodeBuild/CodePipelineActionRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineBuildCodeBuildCodePipelineActionRoleEE1A2CE7"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/Pipeline/Build/CodeBuild/CodePipelineActionRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineBuildCodeBuildCodePipelineActionRoleDefaultPolicyD9C4A2F6"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/ApiEndpoint": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ApiEndpoint"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/OrderResultsBucketName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OrderResultsBucketName"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/OrdersTableName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "OrdersTableName"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/StateMachineArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "StateMachineArn"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/PipelineName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PipelineName"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/BuildProjectName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BuildProjectName"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/GitHubConnectionInfo": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "GitHubConnectionInfo"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/EntrixEnergyAuctionStack-dev/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "EntrixEnergyAuctionStack-dev"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  },
+  "minimumCliVersion": "2.1020.2"
+}

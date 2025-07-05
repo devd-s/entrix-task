@@ -7,23 +7,29 @@ const app = new cdk.App();
 
 const environment = process.env.ENVIRONMENT || 'dev';
 
-// Core Infrastructure Stack
+// Complete Infrastructure Stack (includes CI/CD pipeline)
 new EntrixEnergyAuctionStack(app, `EntrixEnergyAuctionStack-${environment}`, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: 'eu-west-1'
   },
-  environment: environment
+  environment: environment,
+  // GitHub connection ARN for CI/CD pipeline
+  githubConnectionArn: 'arn:aws:codeconnections:eu-west-1:844682013548:connection/2bdacb93-aec6-4509-b83f-5cb0aa78c25a'
 });
 
-// CI/CD Pipeline Stack - AWS CodePipeline for automated deployments
+// Separate CI/CD Pipeline Stack (OPTIONAL - now included in main stack)
+// Keep this commented out since pipeline is now in the main stack
+/*
 new PipelineStack(app, `PipelineStack-${environment}`, {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: 'eu-west-1'
   },
-  environment: environment
+  environment: environment,
+  githubConnectionArn: 'arn:aws:codeconnections:eu-west-1:844682013548:connection/2bdacb93-aec6-4509-b83f-5cb0aa78c25a'
 });
+*/
 
 // MULTIPLE ENVIRONMENTS FEATURE (COMMENTED)
 // Uncomment below to deploy multiple environments at once

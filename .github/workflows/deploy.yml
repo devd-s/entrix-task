@@ -88,16 +88,8 @@ jobs:
     - name: Wait for cleanup
       run: sleep 60
     
-    - name: Store GitHub PAT in Secrets Manager
-      run: |
-        aws secretsmanager create-secret \
-          --name entrix-github-token-${ENVIRONMENT} \
-          --secret-string "${{ secrets.PAT_TOKEN }}" \
-          --region ${{ env.AWS_REGION }} || \
-        aws secretsmanager put-secret-value \
-          --secret-id entrix-github-token-${ENVIRONMENT} \
-          --secret-string "${{ secrets.PAT_TOKEN }}" \
-          --region ${{ env.AWS_REGION }}
+    # GitHub PAT in Secrets Manager no longer needed - using GitHub Connections
+    # The pipeline now uses CodeConnections for GitHub integration
     
     - name: Deploy to Dev
       run: npm run deploy -- --require-approval never

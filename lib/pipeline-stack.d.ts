@@ -1,0 +1,8 @@
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+export interface PipelineStackProps extends cdk.StackProps {
+    environment: string;
+}
+export declare class PipelineStack extends cdk.Stack {
+    constructor(scope: Construct, id: string, props: PipelineStackProps);
+}

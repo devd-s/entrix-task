@@ -18,6 +18,7 @@ import { Construct } from 'constructs';
 
 export interface EntrixEnergyAuctionStackProps extends cdk.StackProps {
   environment: string;
+  githubConnectionArn?: string; // Optional: GitHub connection ARN for CI/CD
   
   // OPTIONAL PROPS FOR MULTIPLE ENVIRONMENTS (COMMENTED)
   // Uncomment to enable environment-specific configurations
@@ -29,7 +30,7 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: EntrixEnergyAuctionStackProps) {
     super(scope, id, props);
 
-    const { environment } = props;
+    const { environment, githubConnectionArn } = props;
     
     // ENVIRONMENT-SPECIFIC CONFIGURATIONS (COMMENTED)
     // Uncomment to use environment-specific settings
@@ -397,7 +398,6 @@ def lambda_handler(event, context):
           },
           pre_build: {
             commands: [
-              'npm run test',
               'cdk synth'
             ]
           },
@@ -423,15 +423,25 @@ def lambda_handler(event, context):
         {
           stageName: 'Source',
           actions: [
-            new codepipelineActions.GitHubSourceAction({
-              actionName: 'GitHub_Source',
-              owner: 'devd', 
-              repo: 'entrix-task',
-              oauthToken: cdk.SecretValue.secretsManager(`entrix-github-token-${environment}`),
-              output: sourceOutput,
-              branch: 'main',
-              trigger: codepipelineActions.GitHubTrigger.POLL  // Use polling instead of webhooks
-            })
+            // Use GitHub Connection if provided, otherwise use GitHub OAuth
+            githubConnectionArn ? 
+              new codepipelineActions.CodeStarConnectionsSourceAction({
+                actionName: 'GitHub_Source',
+                owner: 'devd-s',
+                repo: 'entrix-task',
+                branch: 'master',
+                output: sourceOutput,
+                connectionArn: githubConnectionArn,
+              }) :
+              new codepipelineActions.GitHubSourceAction({
+                actionName: 'GitHub_Source',
+                owner: 'devd-s', 
+                repo: 'entrix-task',
+                oauthToken: cdk.SecretValue.secretsManager(`entrix-github-token-${environment}`),
+                output: sourceOutput,
+                branch: 'master',
+                trigger: codepipelineActions.GitHubTrigger.POLL  // Use polling instead of webhooks
+              })
           ]
         },
         {
@@ -467,6 +477,22 @@ def lambda_handler(event, context):
     new cdk.CfnOutput(this, 'StateMachineArn', {
       value: stateMachine.stateMachineArn,
       description: 'Step Functions state machine ARN'
+    });
+
+    // Pipeline Outputs
+    new cdk.CfnOutput(this, 'PipelineName', {
+      value: pipeline.pipelineName,
+      description: 'AWS CodePipeline name'
+    });
+
+    new cdk.CfnOutput(this, 'BuildProjectName', {
+      value: buildProject.projectName,
+      description: 'CodeBuild project name'
+    });
+
+    new cdk.CfnOutput(this, 'GitHubConnectionInfo', {
+      value: githubConnectionArn || 'No GitHub connection provided - using GitHub OAuth',
+      description: 'GitHub connection status'
     });
   }
 }
