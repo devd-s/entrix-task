@@ -2,9 +2,9 @@ name: Deploy to AWS Dev
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 env:
   AWS_REGION: eu-west-1
@@ -50,7 +50,7 @@ jobs:
   deploy-dev:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     env:
       ENVIRONMENT: dev
     steps:
