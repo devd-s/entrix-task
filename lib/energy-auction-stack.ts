@@ -13,6 +13,7 @@ import * as codepipeline from 'aws-cdk-lib/aws-codepipeline';
 import * as codepipelineActions from 'aws-cdk-lib/aws-codepipeline-actions';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import * as snsSubscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Construct } from 'constructs';
 
 export interface EntrixEnergyAuctionStackProps extends cdk.StackProps {
@@ -103,6 +104,133 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(30)
     });
 
+    // Slack Notification Lambda (subscribes to SNS for error alerts)
+    const slackNotificationLambda = new lambda.Function(this, 'SlackNotificationLambda', {
+      runtime: lambda.Runtime.PYTHON_3_9,
+      handler: 'index.lambda_handler',
+      code: lambda.Code.fromInline(`
+import json
+import urllib3
+import os
+
+def lambda_handler(event, context):
+    """
+    Process SNS notification and send formatted message to Slack
+    """
+    # Parse SNS message
+    sns_message = json.loads(event['Records'][0]['Sns']['Message'])
+    
+    # Get Slack webhook URL from environment (would be set in real deployment)
+    slack_webhook_url = os.environ.get('SLACK_WEBHOOK_URL', 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK')
+    
+    # Format Slack message
+    slack_payload = {
+        "text": f"🚨 *{sns_message.get('alert', 'Error Alert')}*",
+        "blocks": [
+            {
+                "type": "header",
+                "text": {
+                    "type": "plain_text",
+                    "text": f"🚨 {sns_message.get('service', 'Service')} Alert"
+                }
+            },
+            {
+                "type": "section",
+                "fields": [
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Environment:*\\n{sns_message.get('environment', 'unknown')}"
+                    },
+                    {
+                        "type": "mrkdwn", 
+                        "text": f"*Error:*\\n{sns_message.get('error', 'Unknown error')}"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Execution:*\\n{sns_message.get('executionName', 'N/A')}"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Timestamp:*\\n{sns_message.get('timestamp', 'N/A')}"
+                    }
+                ]
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"*Error Details:*\\n\`\`\`{sns_message.get('errorDetails', 'No details available')}\`\`\`"
+                }
+            },
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": f"Region: {sns_message.get('region', 'N/A')} | State Machine: {sns_message.get('stateMachineArn', 'N/A')}"
+                    }
+                ]
+            }
+        ]
+    }
+    
+    # Send to Slack (in production, you'd use the actual webhook)
+    http = urllib3.PoolManager()
+    
+    try:
+        response = http.request(
+            'POST',
+            slack_webhook_url,
+            body=json.dumps(slack_payload),
+            headers={'Content-Type': 'application/json'}
+        )
+        
+        print(f"Slack notification sent successfully. Status: {response.status}")
+        print(f"Payload: {json.dumps(slack_payload, indent=2)}")
+        
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'message': 'Notification sent successfully',
+                'slack_response_status': response.status
+            })
+        }
+        
+    except Exception as e:
+        print(f"Failed to send Slack notification: {str(e)}")
+        print(f"Would have sent: {json.dumps(slack_payload, indent=2)}")
+        
+        return {
+            'statusCode': 500,
+            'body': json.dumps({
+                'error': 'Failed to send notification',
+                'details': str(e)
+            })
+        }
+      `),
+      environment: {
+        'SLACK_WEBHOOK_URL': 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK' // Replace with actual webhook
+      },
+      timeout: cdk.Duration.seconds(30),
+      description: 'Sends formatted error notifications to Slack channel'
+    });
+
+    // Subscribe Slack Lambda to SNS topic
+    errorNotificationTopic.addSubscription(
+      new snsSubscriptions.LambdaSubscription(slackNotificationLambda)
+    );
+
+    // Add email subscription for critical alerts (replace with actual email)
+    errorNotificationTopic.addSubscription(
+      new snsSubscriptions.EmailSubscription('devops-team@company.com')
+    );
+
+    // Optional: Add SMS subscription for urgent alerts
+    // errorNotificationTopic.addSubscription(
+    //   new snsSubscriptions.SmsSubscription('+1234567890')
+    // );
+
+
     // Grant permissions
     ordersTable.grantReadWriteData(postLambda);
     orderResultsBucket.grantReadWrite(lambdaB);
@@ -186,13 +314,21 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
       resultPath: '$.result'
     });
 
-    // SNS notification on error
+    // Enhanced SNS notification on error with detailed context
     const sendErrorNotification = new sfnTasks.SnsPublish(this, 'SendErrorNotification', {
       topic: errorNotificationTopic,
+      subject: '🚨 Lambda B Processing Error',
       message: stepfunctions.TaskInput.fromObject({
+        alert: '🚨 Lambda B Error',
+        environment: environment,
+        service: 'Energy Auction Processing',
         error: 'Lambda B failed to process order',
-        input: stepfunctions.JsonPath.entirePayload,
-        time: stepfunctions.JsonPath.stringAt('$$.State.EnteredTime')
+        errorDetails: stepfunctions.JsonPath.stringAt('$.error.Error'),
+        failedOrder: stepfunctions.JsonPath.objectAt('$.data'),
+        executionName: stepfunctions.JsonPath.stringAt('$$.Execution.Name'),
+        timestamp: stepfunctions.JsonPath.stringAt('$$.State.EnteredTime'),
+        stateMachineArn: stepfunctions.JsonPath.stringAt('$$.StateMachine.Name'),
+        region: 'eu-west-1'
       })
     });
 
