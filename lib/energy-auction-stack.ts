@@ -378,6 +378,15 @@ def lambda_handler(event, context):
     const sourceOutput = new codepipeline.Artifact();
     const buildOutput = new codepipeline.Artifact();
 
+    // S3 Bucket for CodePipeline artifacts
+    const pipelineArtifactsBucket = new s3.Bucket(this, 'PipelineArtifactsBucket', {
+      bucketName: `entrix-pipeline-artifacts-${environment}-${cdk.Aws.ACCOUNT_ID}`,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+      versioned: true,
+      encryption: s3.BucketEncryption.S3_MANAGED
+    });
+
     const buildProject = new codebuild.PipelineProject(this, 'BuildProject', {
       projectName: `energy-auction-build-${environment}`,
       environment: {
@@ -419,6 +428,7 @@ def lambda_handler(event, context):
 
     const pipeline = new codepipeline.Pipeline(this, 'Pipeline', {
       pipelineName: `entrix-energy-auction-pipeline-${environment}`,
+      artifactBucket: pipelineArtifactsBucket,
       stages: [
         {
           stageName: 'Source',
@@ -493,6 +503,11 @@ def lambda_handler(event, context):
     new cdk.CfnOutput(this, 'GitHubConnectionInfo', {
       value: githubConnectionArn || 'No GitHub connection provided - using GitHub OAuth',
       description: 'GitHub connection status'
+    });
+
+    new cdk.CfnOutput(this, 'PipelineArtifactsBucketName', {
+      value: pipelineArtifactsBucket.bucketName,
+      description: 'S3 bucket name for pipeline artifacts'
     });
   }
 }

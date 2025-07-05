@@ -61,7 +61,7 @@
         }
       }
     },
-    "7df06e1d5b33291e46bcb0cad372ceb1cd8a64769033469ef7e312a894c46bd1": {
+    "81d37f6ffbd3d9ad0ab5073897f3c4863b83d551e9899fb4aa9dfe75643510d1": {
       "displayName": "EntrixEnergyAuctionStack-dev Template",
       "source": {
         "path": "EntrixEnergyAuctionStack-dev.template.json",
@@ -70,7 +70,7 @@
       "destinations": {
         "844682013548-eu-west-1": {
           "bucketName": "cdk-hnb659fds-assets-844682013548-eu-west-1",
-          "objectKey": "7df06e1d5b33291e46bcb0cad372ceb1cd8a64769033469ef7e312a894c46bd1.json",
+          "objectKey": "81d37f6ffbd3d9ad0ab5073897f3c4863b83d551e9899fb4aa9dfe75643510d1.json",
           "region": "eu-west-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::844682013548:role/cdk-hnb659fds-file-publishing-role-844682013548-eu-west-1"
         }

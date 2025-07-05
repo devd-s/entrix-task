@@ -1011,6 +1011,122 @@
     "aws:cdk:path": "EntrixEnergyAuctionStack-dev/DataPipelineSchedule/Resource"
    }
   },
+  "PipelineArtifactsBucketC4BB9BE3": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "BucketName": {
+     "Fn::Join": [
+      "",
+      [
+       "entrix-pipeline-artifacts-dev-",
+       {
+        "Ref": "AWS::AccountId"
+       }
+      ]
+     ]
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     }
+    ],
+    "VersioningConfiguration": {
+     "Status": "Enabled"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EntrixEnergyAuctionStack-dev/PipelineArtifactsBucket/Resource"
+   }
+  },
+  "PipelineArtifactsBucketPolicy2D2AC8D1": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "PipelineArtifactsBucketC4BB9BE3"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:PutBucketPolicy"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PipelineArtifactsBucketC4BB9BE3",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "PipelineArtifactsBucketC4BB9BE3",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "EntrixEnergyAuctionStack-dev/PipelineArtifactsBucket/Policy/Resource"
+   }
+  },
+  "PipelineArtifactsBucketAutoDeleteObjectsCustomResource1CCE9E6C": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "PipelineArtifactsBucketC4BB9BE3"
+    }
+   },
+   "DependsOn": [
+    "PipelineArtifactsBucketPolicy2D2AC8D1"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "EntrixEnergyAuctionStack-dev/PipelineArtifactsBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
   "BuildProjectRoleAA92C755": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -1113,7 +1229,7 @@
        "Resource": [
         {
          "Fn::GetAtt": [
-          "PipelineArtifactsBucket22248F97",
+          "PipelineArtifactsBucketC4BB9BE3",
           "Arn"
          ]
         },
@@ -1123,7 +1239,7 @@
           [
            {
             "Fn::GetAtt": [
-             "PipelineArtifactsBucket22248F97",
+             "PipelineArtifactsBucketC4BB9BE3",
              "Arn"
             ]
            },
@@ -1132,22 +1248,6 @@
          ]
         }
        ]
-      },
-      {
-       "Action": [
-        "kms:Decrypt",
-        "kms:DescribeKey",
-        "kms:Encrypt",
-        "kms:GenerateDataKey*",
-        "kms:ReEncrypt*"
-       ],
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "PipelineArtifactsBucketEncryptionKey01D58D69",
-         "Arn"
-        ]
-       }
       }
      ],
      "Version": "2012-10-17"
@@ -1172,12 +1272,7 @@
     "Cache": {
      "Type": "NO_CACHE"
     },
-    "EncryptionKey": {
-     "Fn::GetAtt": [
-      "PipelineArtifactsBucketEncryptionKey01D58D69",
-      "Arn"
-     ]
-    },
+    "EncryptionKey": "alias/aws/s3",
     "Environment": {
      "ComputeType": "BUILD_GENERAL1_SMALL",
      "Image": "aws/codebuild/standard:5.0",
@@ -1199,127 +1294,6 @@
    },
    "Metadata": {
     "aws:cdk:path": "EntrixEnergyAuctionStack-dev/BuildProject/Resource"
-   }
-  },
-  "PipelineArtifactsBucketEncryptionKey01D58D69": {
-   "Type": "AWS::KMS::Key",
-   "Properties": {
-    "KeyPolicy": {
-     "Statement": [
-      {
-       "Action": "kms:*",
-       "Effect": "Allow",
-       "Principal": {
-        "AWS": "arn:aws:iam::844682013548:root"
-       },
-       "Resource": "*"
-      }
-     ],
-     "Version": "2012-10-17"
-    }
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete",
-   "Metadata": {
-    "aws:cdk:path": "EntrixEnergyAuctionStack-dev/Pipeline/ArtifactsBucketEncryptionKey/Resource"
-   }
-  },
-  "PipelineArtifactsBucketEncryptionKeyAlias5C510EEE": {
-   "Type": "AWS::KMS::Alias",
-   "Properties": {
-    "AliasName": "alias/codepipeline-entrixenergyauctionstack-dev-pipeline-f2686bc6",
-    "TargetKeyId": {
-     "Fn::GetAtt": [
-      "PipelineArtifactsBucketEncryptionKey01D58D69",
-      "Arn"
-     ]
-    }
-   },
-   "UpdateReplacePolicy": "Delete",
-   "DeletionPolicy": "Delete",
-   "Metadata": {
-    "aws:cdk:path": "EntrixEnergyAuctionStack-dev/Pipeline/ArtifactsBucketEncryptionKeyAlias/Resource"
-   }
-  },
-  "PipelineArtifactsBucket22248F97": {
-   "Type": "AWS::S3::Bucket",
-   "Properties": {
-    "BucketEncryption": {
-     "ServerSideEncryptionConfiguration": [
-      {
-       "ServerSideEncryptionByDefault": {
-        "KMSMasterKeyID": {
-         "Fn::GetAtt": [
-          "PipelineArtifactsBucketEncryptionKey01D58D69",
-          "Arn"
-         ]
-        },
-        "SSEAlgorithm": "aws:kms"
-       }
-      }
-     ]
-    },
-    "PublicAccessBlockConfiguration": {
-     "BlockPublicAcls": true,
-     "BlockPublicPolicy": true,
-     "IgnorePublicAcls": true,
-     "RestrictPublicBuckets": true
-    }
-   },
-   "UpdateReplacePolicy": "Retain",
-   "DeletionPolicy": "Retain",
-   "Metadata": {
-    "aws:cdk:path": "EntrixEnergyAuctionStack-dev/Pipeline/ArtifactsBucket/Resource"
-   }
-  },
-  "PipelineArtifactsBucketPolicyD4F9712A": {
-   "Type": "AWS::S3::BucketPolicy",
-   "Properties": {
-    "Bucket": {
-     "Ref": "PipelineArtifactsBucket22248F97"
-    },
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": "s3:*",
-       "Condition": {
-        "Bool": {
-         "aws:SecureTransport": "false"
-        }
-       },
-       "Effect": "Deny",
-       "Principal": {
-        "AWS": "*"
-       },
-       "Resource": [
-        {
-         "Fn::GetAtt": [
-          "PipelineArtifactsBucket22248F97",
-          "Arn"
-         ]
-        },
-        {
-         "Fn::Join": [
-          "",
-          [
-           {
-            "Fn::GetAtt": [
-             "PipelineArtifactsBucket22248F97",
-             "Arn"
-            ]
-           },
-           "/*"
-          ]
-         ]
-        }
-       ]
-      }
-     ],
-     "Version": "2012-10-17"
-    }
-   },
-   "Metadata": {
-    "aws:cdk:path": "EntrixEnergyAuctionStack-dev/Pipeline/ArtifactsBucket/Policy/Resource"
    }
   },
   "PipelineRoleD68726F7": {
@@ -1364,7 +1338,7 @@
        "Resource": [
         {
          "Fn::GetAtt": [
-          "PipelineArtifactsBucket22248F97",
+          "PipelineArtifactsBucketC4BB9BE3",
           "Arn"
          ]
         },
@@ -1374,7 +1348,7 @@
           [
            {
             "Fn::GetAtt": [
-             "PipelineArtifactsBucket22248F97",
+             "PipelineArtifactsBucketC4BB9BE3",
              "Arn"
             ]
            },
@@ -1383,22 +1357,6 @@
          ]
         }
        ]
-      },
-      {
-       "Action": [
-        "kms:Decrypt",
-        "kms:DescribeKey",
-        "kms:Encrypt",
-        "kms:GenerateDataKey*",
-        "kms:ReEncrypt*"
-       ],
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "PipelineArtifactsBucketEncryptionKey01D58D69",
-         "Arn"
-        ]
-       }
       },
       {
        "Action": "sts:AssumeRole",
@@ -1436,17 +1394,8 @@
    "Type": "AWS::CodePipeline::Pipeline",
    "Properties": {
     "ArtifactStore": {
-     "EncryptionKey": {
-      "Id": {
-       "Fn::GetAtt": [
-        "PipelineArtifactsBucketEncryptionKey01D58D69",
-        "Arn"
-       ]
-      },
-      "Type": "KMS"
-     },
      "Location": {
-      "Ref": "PipelineArtifactsBucket22248F97"
+      "Ref": "PipelineArtifactsBucketC4BB9BE3"
      },
      "Type": "S3"
     },
@@ -1587,7 +1536,7 @@
        "Resource": [
         {
          "Fn::GetAtt": [
-          "PipelineArtifactsBucket22248F97",
+          "PipelineArtifactsBucketC4BB9BE3",
           "Arn"
          ]
         },
@@ -1597,7 +1546,7 @@
           [
            {
             "Fn::GetAtt": [
-             "PipelineArtifactsBucket22248F97",
+             "PipelineArtifactsBucketC4BB9BE3",
              "Arn"
             ]
            },
@@ -1606,22 +1555,6 @@
          ]
         }
        ]
-      },
-      {
-       "Action": [
-        "kms:Decrypt",
-        "kms:DescribeKey",
-        "kms:Encrypt",
-        "kms:GenerateDataKey*",
-        "kms:ReEncrypt*"
-       ],
-       "Effect": "Allow",
-       "Resource": {
-        "Fn::GetAtt": [
-         "PipelineArtifactsBucketEncryptionKey01D58D69",
-         "Arn"
-        ]
-       }
       },
       {
        "Action": [
@@ -1635,7 +1568,7 @@
          [
           {
            "Fn::GetAtt": [
-            "PipelineArtifactsBucket22248F97",
+            "PipelineArtifactsBucketC4BB9BE3",
             "Arn"
            ]
           },
@@ -1719,7 +1652,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21SXW/bMAz8LXtX1CLpH0gzFBi6YEbS90CW2YSxLAmmlCIw/N9HfbRJhz3xjjpTx5OXcvn4JB9/qA9a6K5fGGzltA9K94Jbh4lWcnqOuocgNu+2olIaZ1Bfb+3KC3lWBLPorlYNruORb6o1kLQZzIIscdN51LmZwT62pEf0AZ1N3Xs+C6OGtlNyeolWfyrucQPjgERZi2qQ086VG3O9mS2IHawOiggCyXUqQnk8qgAf6sqfAoW1x/x1hT/BG3cdwOYg7hiHdcz3FMB6F0cNKYAvUgcVvIVwcl1qFcRWAvj3ugodgqKew/md9/1lL64HsbfUxNYgnf5Ry6nhLcTm5JBHvyg0Yqs8R6k1QJfMBdgqfUL76fGLzwIuvACP2MWaVExPo10HbUTT8Wz0YFjajO4MOm9eYZH5en5TZknFs+gHnv4KOfdU1gYVJZLBPItNpOCG/8b0/YivvWAHY441P1iKG+3xW8Z/YvCRvVn2Js/0cFk+yRX/3WdCXIzRBhxA7kr9C+Af3hX6AgAA"
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/21S0W4jIQz8lnsntEr6A22qSidddKuk7xELbuIsC2gNqaLV/nu9QJu06pPHZhjbA0u5vH+Q93/UOy206RYWWznuotKd4NJ+pJUcn5LuIIr1m6uohMZb1JdrueYleVIEkzAXp3pvWPJVtRZmbgaTIEdc9AF1LmawSy3pAUNE7+bqbT4Jq/rWKDm+JKc/Gbe4gaFHosxF1ctx60vHHK/DFsQTrPaKCCLJxzkIFfCgIryrC18Fio8B8+0KnyFYf+nBZSNuMjbrkPsUwHyfBg2zAV9JFSp4A/HozVwqiEeJEN7qKrSPijo251/e9687+w7EzlGTWot0/MGWY8NbiPXRI0u/KLRiowJbqTWAmYeLsFH6iO5zxq98EnDmBVhim6pTaX4a7Q20Ca1hbQxgmdoM/gQ6b15hoYV6fmVmSsXTJNaJou9/teH7Ecue0cCQbcsPMtuJ7vDNw/8phsS9HfeWJ7o7Lx/kin/viRAXQ3IRe5DbEj8Aoa/v+toCAAA="
    },
    "Metadata": {
     "aws:cdk:path": "EntrixEnergyAuctionStack-dev/CDKMetadata/Default"
@@ -1805,6 +1738,12 @@
   "GitHubConnectionInfo": {
    "Description": "GitHub connection status",
    "Value": "arn:aws:codeconnections:eu-west-1:844682013548:connection/2bdacb93-aec6-4509-b83f-5cb0aa78c25a"
+  },
+  "PipelineArtifactsBucketName": {
+   "Description": "S3 bucket name for pipeline artifacts",
+   "Value": {
+    "Ref": "PipelineArtifactsBucketC4BB9BE3"
+   }
   }
  },
  "Parameters": {
