@@ -7,6 +7,8 @@ const app = new cdk.App();
 
 const environment = process.env.ENVIRONMENT || 'dev';
 
+// Test deployment via GitHub Actions pipeline
+
 // Complete Infrastructure Stack (includes CI/CD pipeline)
 new EntrixEnergyAuctionStack(app, `EntrixEnergyAuctionStack-${environment}`, {
   env: {

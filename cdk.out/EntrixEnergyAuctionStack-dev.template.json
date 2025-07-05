@@ -529,7 +529,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "EntrixEnergyAuctionStack-dev/LambdaB/Resource",
-    "aws:asset:path": "asset.ea9355f5fdc02d8ba30b3d89d63859ff1b7fd964e77e9874571a0a080133ddba",
+    "aws:asset:path": "/Users/devd/entrix-task/src/lambda_b",
     "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }

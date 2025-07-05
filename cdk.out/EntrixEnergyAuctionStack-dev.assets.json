@@ -49,7 +49,7 @@
     "ea9355f5fdc02d8ba30b3d89d63859ff1b7fd964e77e9874571a0a080133ddba": {
       "displayName": "LambdaB/Code",
       "source": {
-        "path": "asset.ea9355f5fdc02d8ba30b3d89d63859ff1b7fd964e77e9874571a0a080133ddba",
+        "path": "/Users/devd/entrix-task/src/lambda_b",
         "packaging": "zip"
       },
       "destinations": {
@@ -61,7 +61,7 @@
         }
       }
     },
-    "81d37f6ffbd3d9ad0ab5073897f3c4863b83d551e9899fb4aa9dfe75643510d1": {
+    "39177335cdfec3537e97ab44fb4bc32520155af013693cfc455d9c5030aad93e": {
       "displayName": "EntrixEnergyAuctionStack-dev Template",
       "source": {
         "path": "EntrixEnergyAuctionStack-dev.template.json",
@@ -70,7 +70,7 @@
       "destinations": {
         "844682013548-eu-west-1": {
           "bucketName": "cdk-hnb659fds-assets-844682013548-eu-west-1",
-          "objectKey": "81d37f6ffbd3d9ad0ab5073897f3c4863b83d551e9899fb4aa9dfe75643510d1.json",
+          "objectKey": "39177335cdfec3537e97ab44fb4bc32520155af013693cfc455d9c5030aad93e.json",
           "region": "eu-west-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::844682013548:role/cdk-hnb659fds-file-publishing-role-844682013548-eu-west-1"
         }
