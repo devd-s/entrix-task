@@ -59,6 +59,9 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
       displayName: 'Error Notifications for Energy Auction Issues'
     });
 
+    // We'll handle DynamoDB decimal conversion via environment variables
+    // The Lambda code can check for DYNAMODB_FLOAT_SERIALIZER env var
+
     // Lambda Functions
     
     // POST Lambda for API
@@ -67,7 +70,8 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
       handler: 'app.lambda_handler',
       code: lambda.Code.fromAsset('src/post_lambda'),
       environment: {
-        TABLE_NAME: ordersTable.tableName
+        TABLE_NAME: ordersTable.tableName,
+        DYNAMODB_FLOAT_SERIALIZER: 'use_decimal' // Configure float handling via env var
       },
       timeout: cdk.Duration.seconds(30)
     });
@@ -84,7 +88,15 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
     const lambdaB = new lambda.Function(this, 'LambdaB', {
       runtime: lambda.Runtime.PYTHON_3_9,
       handler: 'app.lambda_handler',
-      code: lambda.Code.fromAsset('src/lambda_b'),
+      code: lambda.Code.fromAsset('src/lambda_b', {
+        bundling: {
+          image: lambda.Runtime.PYTHON_3_9.bundlingImage,
+          command: [
+            'bash', '-c',
+            'pip install -r requirements.txt -t /asset-output && cp -au . /asset-output'
+          ],
+        },
+      }),
       environment: {
         LOG_BUCKET: orderResultsBucket.bucketName
       },
@@ -109,23 +121,62 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
 
     // Step Functions State Machine for data pipeline
     
-    // Lambda A task
+    // Lambda A task with retry configuration
     const lambdaATask = new sfnTasks.LambdaInvoke(this, 'InvokeLambdaA', {
       lambdaFunction: lambdaA,
-      outputPath: '$.Payload'
+      outputPath: '$.Payload',
+      retryOnServiceExceptions: true,
+      payload: stepfunctions.TaskInput.fromObject({
+        "attempt.$": "$.attempt",
+        "input.$": "$"
+      })
     });
+
+    // Add attempt counter initialization
+    const initializeAttempt = new stepfunctions.Pass(this, 'InitializeAttempt', {
+      result: stepfunctions.Result.fromObject({ attempt: 1 }),
+      resultPath: '$.attempt'
+    });
+
+    // Increment attempt counter
+    const incrementAttempt = new stepfunctions.Pass(this, 'IncrementAttempt', {
+      parameters: {
+        "attempt.$": "States.MathAdd($.attempt, 1)",
+        "input.$": "$"
+      }
+    });
+
+    // Check max retries
+    const maxRetryCheck = new stepfunctions.Choice(this, 'CheckMaxRetries')
+      .when(
+        stepfunctions.Condition.numberGreaterThan('$.attempt', 5),
+        new stepfunctions.Fail(this, 'MaxRetriesExceeded', {
+          error: 'LambdaAMaxRetries',
+          cause: 'Lambda A failed to return true results after 5 attempts'
+        })
+      );
 
     // Choice state to check results
     const checkResults = new stepfunctions.Choice(this, 'CheckResults')
       .when(
         stepfunctions.Condition.booleanEquals('$.results', false),
-        lambdaATask // Retry Lambda A if results are false
+        incrementAttempt.next(maxRetryCheck.otherwise(lambdaATask))
       );
 
     // Map state to process each order
     const processOrdersMap = new stepfunctions.Map(this, 'ProcessOrders', {
       itemsPath: '$.orders',
       maxConcurrency: 10
+    });
+
+    // Data transformation for Lambda B compatibility
+    const transformForLambdaB = new stepfunctions.Pass(this, 'TransformForLambdaB', {
+      parameters: {
+        "status.$": "$.order", // Map 'order' field to 'status' field for Lambda B
+        "id.$": "$.id",
+        "timestamp.$": "$.timestamp",
+        "data.$": "$" // Pass through all original data
+      }
     });
 
     // Lambda B task with error handling
@@ -151,16 +202,18 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
       resultPath: '$.error'
     });
 
-    processOrdersMap.iterator(lambdaBWithErrorHandling);
+    processOrdersMap.iterator(transformForLambdaB.next(lambdaBWithErrorHandling));
 
     // Success state
     const successState = new stepfunctions.Succeed(this, 'ProcessingComplete');
 
     // Define the state machine
-    const definition = lambdaATask
-      .next(checkResults
-        .otherwise(processOrdersMap
-          .next(successState)
+    const definition = initializeAttempt
+      .next(lambdaATask
+        .next(checkResults
+          .otherwise(processOrdersMap
+            .next(successState)
+          )
         )
       );
 
