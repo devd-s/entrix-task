@@ -21,7 +21,6 @@ export interface EntrixEnergyAuctionStackProps extends cdk.StackProps {
   environment: string;
   githubConnectionArn?: string; // Optional: GitHub connection ARN for CI/CD
   
-  // OPTIONAL PROPS FOR MULTIPLE ENVIRONMENTS (COMMENTED)
   // Uncomment to enable environment-specific configurations
   // scheduleDuration?: number;  // Pipeline schedule in hours
   // retentionDays?: number;     // Log retention days
@@ -40,7 +39,6 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
         `/entrix/${environment}/github-connection-arn`
       );
     
-    // ENVIRONMENT-SPECIFIC CONFIGURATIONS (COMMENTED)
     // Uncomment to use environment-specific settings
     // const scheduleDuration = props.scheduleDuration ?? 1;  // Default 1 hour
     // const retentionDays = props.retentionDays ?? 7;        // Default 7 days
@@ -69,8 +67,6 @@ export class EntrixEnergyAuctionStack extends cdk.Stack {
       displayName: 'Error Notifications for Energy Auction Issues'
     });
 
-    // We'll handle DynamoDB decimal conversion via environment variables
-    // The Lambda code can check for DYNAMODB_FLOAT_SERIALIZER env var
 
     // Lambda Functions
     
@@ -218,7 +214,7 @@ def lambda_handler(event, context):
         }
       `),
       environment: {
-        'SLACK_WEBHOOK_URL': 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK' // Replace with actual webhook
+        'SLACK_WEBHOOK_URL': 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK' // This needs to be replaced with actual webhook
       },
       timeout: cdk.Duration.seconds(30),
       description: 'Sends formatted error notifications to Slack channel'

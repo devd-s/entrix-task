@@ -1,5 +1,9 @@
-node_modules                                                                                                                                                                  │ │
-*.js                                                                                                                                                                          │ │
-*.js.map                                                                                                                                                                      │ │
-cdk.out                                                                                                                                                                       │ │
-.DS_Store                                                                                                                                                                     
+node_modules
+*.js
+*.js.map
+cdk.out
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+*.pyd                                                                                                                                                                     

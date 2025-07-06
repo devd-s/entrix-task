@@ -28,8 +28,7 @@ new PipelineStack(app, `PipelineStack-${environment}`, {
     region: 'eu-west-1'
   },
   environment: environment,
-  githubConnectionArn: 'arn:aws:codeconnections:eu-west-1:844682013548:connection/2bdacb93-aec6-4509-b83f-5cb0aa78c25a'
-});
+  githubConnectionArn: ''
 */
 
 // MULTIPLE ENVIRONMENTS FEATURE (COMMENTED)
@@ -59,7 +58,7 @@ new EntrixEnergyAuctionStack(app, 'EntrixEnergyAuctionStack-staging', {
 new EntrixEnergyAuctionStack(app, 'EntrixEnergyAuctionStack-prod', {
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: 'eu-west-1'  // or 'us-east-1' for prod
+    region: 'eu-west-1'  
   },
   environment: 'prod'
 });
